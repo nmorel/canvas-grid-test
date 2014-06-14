@@ -1,4 +1,7 @@
 canvas-grid-test
 ================
 
-A simple test to create and to interact with a canvas in GWT
+A simple test to create a grid within a Canvas and to interact with it, all in GWT
+
+Showcase : http://nmorel.github.io/canvas-grid-test/
+
