@@ -1,0 +1,42 @@
+buildscript {
+    repositories {
+        maven {
+            url 'https://github.com/steffenschaefer/gwt-gradle-plugin/raw/maven-repo/'
+        }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.4'
+    }
+}
+
+apply plugin: 'war'
+apply plugin: 'gwt'
+
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    providedCompile 'com.google.gwt:gwt-user:2.6.1'
+}
+
+gwt {
+    gwtVersion = '2.6.1'
+    modules 'zer.App'
+
+    compiler {
+        strict = true;
+        enableClosureCompiler = true;
+        disableClassMetadata = true;
+        disableCastChecking = true;
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.12'
+}
+
