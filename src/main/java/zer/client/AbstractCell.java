@@ -25,19 +25,19 @@ public abstract class AbstractCell {
     }
 
     public int getXStart() {
-        return col * (SQUARE_WIDTH + SEP_WIDTH) + SEP_WIDTH;
+        return col * (getSquareWidth() + getSepWidth()) + getSepWidth();
     }
 
     public int getXEnd() {
-        return getXStart() + SQUARE_WIDTH;
+        return getXStart() + getSquareWidth();
     }
 
     public int getYStart() {
-        return row * (SQUARE_HEIGHT + SEP_WIDTH) + SEP_WIDTH;
+        return row * (getSquareHeight() + getSepWidth()) + getSepWidth();
     }
 
     public int getYEnd() {
-        return getYStart() + SQUARE_HEIGHT;
+        return getYStart() + getSquareHeight();
     }
 
     public abstract boolean isEmpty();

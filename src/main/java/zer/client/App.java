@@ -8,9 +8,11 @@ import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiFactory;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -38,7 +40,7 @@ public class App implements EntryPoint {
         void execute(AbstractCell cell);
     }
 
-    private final AbstractCell[][] cells = new AbstractCell[NB_ROW][NB_COL];
+    private AbstractCell[][] cells;
     private AbstractCell lastCellOver;
 
     @UiField
@@ -54,62 +56,7 @@ public class App implements EntryPoint {
     public void onModuleLoad() {
 
         Widget root = binder.createAndBindUi(this);
-        canvasContainer.getStyle().setWidth(CANVAS_WIDTH, Style.Unit.PX);
-        canvasContainer.getStyle().setHeight(CANVAS_HEIGHT, Style.Unit.PX);
         RootPanel.get().add(root);
-
-        for (int i = 0; i < NB_ROW; i++) {
-            for (int j = 0; j < NB_COL; j++) {
-                if (Random.nextBoolean()) {
-                    cells[i][j] = new EmptyCell(i, j);
-                } else {
-                    cells[i][j] = new Cell(i, j);
-                }
-            }
-        }
-
-        mainCanvas.setCoordinateSpaceWidth(CANVAS_WIDTH);
-        mainCanvas.setCoordinateSpaceHeight(CANVAS_HEIGHT);
-        hoverCanvas.setCoordinateSpaceWidth(CANVAS_WIDTH);
-        hoverCanvas.setCoordinateSpaceHeight(CANVAS_HEIGHT);
-
-        final Context2d ctx = mainCanvas.getContext2d();
-
-        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        ctx.setStrokeStyle("black");
-        ctx.setLineWidth(SEP_WIDTH);
-        ctx.beginPath();
-
-        int x;
-        int y;
-        for (int i = 1; i <= NB_COL; i++) {
-
-            x = i * SQUARE_WIDTH + i * SEP_WIDTH;
-            y = 0;
-            ctx.moveTo(x, y);
-            ctx.lineTo(x, y + CANVAS_HEIGHT);
-
-        }
-
-        for (int j = 1; j <= NB_ROW; j++) {
-
-            x = 0;
-            y = j * SQUARE_HEIGHT + j * SEP_WIDTH;
-
-            ctx.moveTo(x, y);
-            ctx.lineTo(x + CANVAS_WIDTH, y);
-
-        }
-
-        ctx.closePath();
-        ctx.stroke();
-
-        executeOnAllCell(new CellFunction() {
-            @Override
-            public void execute(AbstractCell cell) {
-                cell.draw(ctx);
-            }
-        });
 
         hoverCanvas.addMouseMoveHandler(new MouseMoveHandler() {
             @Override
@@ -129,7 +76,7 @@ public class App implements EntryPoint {
             @Override
             public void onMouseOut(MouseOutEvent event) {
                 Context2d ctx = hoverCanvas.getContext2d();
-                ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                ctx.clearRect(0, 0, getCanvasWidth(), getCanvasHeight());
                 ctx.fill();
                 lastCellOver = null;
             }
@@ -141,9 +88,94 @@ public class App implements EntryPoint {
                 onCellClicked(findCellFromMouseEvent(event), event.isControlKeyDown());
             }
         });
+
+        update();
+
+    }
+
+    @UiHandler("rowBox")
+    void onChangeRow(ValueChangeEvent<Integer> event) {
+        Constants.setNbRow(event.getValue());
+    }
+
+    @UiHandler("columnBox")
+    void onChangeColumn(ValueChangeEvent<Integer> event) {
+        Constants.setNbColumn(event.getValue());
+    }
+
+    @UiHandler({"rowBox", "columnBox"})
+    void onKeyDownBox(KeyDownEvent event) {
+        if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+            update();
+        }
+    }
+
+    @UiHandler("updateBtn")
+    void update(ClickEvent event) {
+        update();
+    }
+
+    private void update() {
+        cells = new AbstractCell[getNbRow()][getNbColumn()];
+
+        for (int i = 0; i < getNbRow(); i++) {
+            for (int j = 0; j < getNbColumn(); j++) {
+                if (Random.nextBoolean()) {
+                    cells[i][j] = new EmptyCell(i, j);
+                } else {
+                    cells[i][j] = new Cell(i, j);
+                }
+            }
+        }
+
+        canvasContainer.getStyle().setWidth(getCanvasWidth(), Style.Unit.PX);
+        canvasContainer.getStyle().setHeight(getCanvasHeight(), Style.Unit.PX);
+        mainCanvas.setCoordinateSpaceWidth(getCanvasWidth());
+        mainCanvas.setCoordinateSpaceHeight(getCanvasHeight());
+        hoverCanvas.setCoordinateSpaceWidth(getCanvasWidth());
+        hoverCanvas.setCoordinateSpaceHeight(getCanvasHeight());
+
+        final Context2d ctx = mainCanvas.getContext2d();
+
+        ctx.clearRect(0, 0, getCanvasWidth(), getCanvasHeight());
+        ctx.setStrokeStyle("black");
+        ctx.setLineWidth(getSepWidth());
+        ctx.beginPath();
+
+        int x;
+        int y;
+        for (int i = 1; i <= getNbColumn(); i++) {
+
+            x = i * getSquareWidth() + i * getSepWidth();
+            y = 0;
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y + getCanvasHeight());
+
+        }
+
+        for (int j = 1; j <= getNbRow(); j++) {
+
+            x = 0;
+            y = j * getSquareHeight() + j * getSepWidth();
+
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + getCanvasWidth(), y);
+
+        }
+
+        ctx.closePath();
+        ctx.stroke();
+
+        executeOnAllCell(new CellFunction() {
+            @Override
+            public void execute(AbstractCell cell) {
+                cell.draw(ctx);
+            }
+        });
     }
 
     private void onCellClicked(AbstractCell clickedCell, boolean append) {
+
         logger.info("Cell clicked : " + clickedCell);
         final Set<AbstractCell> cellsToRedraw = new HashSet<>();
 
@@ -176,14 +208,14 @@ public class App implements EntryPoint {
     }
 
     private AbstractCell findCellFromMouseEvent(MouseEvent<?> event) {
-        int row = (event.getY() / (SQUARE_HEIGHT + SEP_WIDTH));
-        int col = (event.getX() / (SQUARE_WIDTH + SEP_WIDTH));
+        int row = (event.getY() / (getSquareHeight() + getSepWidth()));
+        int col = (event.getX() / (getSquareWidth() + getSepWidth()));
         return cells[row][col];
     }
 
     private AbstractCell findCellFromNativeEvent(NativeEvent event) {
-        int row = ((event.getClientY() + Window.getScrollTop() - canvasContainer.getOffsetTop()) / (SQUARE_HEIGHT + SEP_WIDTH));
-        int col = ((event.getClientX() + Window.getScrollLeft() - canvasContainer.getOffsetLeft()) / (SQUARE_WIDTH + SEP_WIDTH));
+        int row = ((event.getClientY() + Window.getScrollTop() - canvasContainer.getOffsetTop()) / (getSquareHeight() + getSepWidth()));
+        int col = ((event.getClientX() + Window.getScrollLeft() - canvasContainer.getOffsetLeft()) / (getSquareWidth() + getSepWidth()));
         return cells[row][col];
     }
 
@@ -202,16 +234,16 @@ public class App implements EntryPoint {
 
         Context2d ctx = hoverCanvas.getContext2d();
 
-        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.clearRect(0, 0, getCanvasWidth(), getCanvasHeight());
 
         if (!cell.isEmpty()) {
             ctx.setFillStyle("yellow");
             ctx.setGlobalAlpha(0.5);
 
             ctx.beginPath();
-            ctx.fillRect(cell.getXStart(), 0, SQUARE_WIDTH - SEP_WIDTH, cell.getYStart());
-            ctx.fillRect(0, cell.getYStart(), cell.getXStart(), SQUARE_HEIGHT - SEP_WIDTH);
-            ctx.fillRect(cell.getXStart() - SEP_WIDTH, cell.getYStart() - SEP_WIDTH, SQUARE_WIDTH, SQUARE_HEIGHT);
+            ctx.fillRect(cell.getXStart(), 0, getSquareWidth() - getSepWidth(), cell.getYStart());
+            ctx.fillRect(0, cell.getYStart(), cell.getXStart(), getSquareHeight() - getSepWidth());
+            ctx.fillRect(cell.getXStart() - getSepWidth(), cell.getYStart() - getSepWidth(), getSquareWidth(), getSquareHeight());
             ctx.closePath();
         }
 
@@ -224,8 +256,8 @@ public class App implements EntryPoint {
     }
 
     private void executeOnAllCell(CellFunction fct) {
-        for (int i = 0; i < NB_ROW; i++) {
-            for (int j = 0; j < NB_COL; j++) {
+        for (int i = 0; i < getNbRow(); i++) {
+            for (int j = 0; j < getNbColumn(); j++) {
                 fct.execute(cells[i][j]);
             }
         }

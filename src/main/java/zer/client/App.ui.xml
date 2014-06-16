@@ -21,11 +21,18 @@
         }
     </ui:style>
 
+    <ui:with field="constants" type="zer.client.Constants"/>
+
     <g:HTMLPanel>
         <div>
-            <span draggable="true">Drag me 01</span>
-            <span draggable="true">Drag me 02</span>
-            <span draggable="true">Drag me 03</span>
+            <span>Nb row :</span>
+            <g:IntegerBox ui:field='rowBox' value="{constants.getNbRow}"/>
+            <span>Nb column :</span>
+            <g:IntegerBox ui:field='columnBox' value="{constants.getNbColumn}"/>
+            <g:Button ui:field='updateBtn'>Update</g:Button>
+        </div>
+        <div>
+            <span draggable="true">Draggable</span>
         </div>
         <div ui:field="canvasContainer" class="{style.container}">
             <c:Canvas ui:field="mainCanvas" addStyleNames="{style.canvas}"/>

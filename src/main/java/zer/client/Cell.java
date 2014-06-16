@@ -11,7 +11,7 @@ import static zer.client.Constants.*;
 public class Cell extends AbstractCell {
     private boolean selected;
     private boolean stripes = Random.nextBoolean();
-    private String background = BG_COLORS[Random.nextInt(BG_COLORS.length)];
+    private String background = getBackgroundColors()[Random.nextInt(getBackgroundColors().length)];
     private boolean square = Random.nextBoolean();
     private int num = Random.nextInt(301);
 
@@ -36,7 +36,7 @@ public class Cell extends AbstractCell {
         {
             // clearing the square
             ctx.beginPath();
-            ctx.clearRect(getXStart(), getYStart(), SQUARE_WIDTH - SEP_WIDTH, SQUARE_HEIGHT - SEP_WIDTH);
+            ctx.clearRect(getXStart(), getYStart(), getSquareWidth() - getSepWidth(), getSquareHeight() - getSepWidth());
             ctx.closePath();
             ctx.fill();
         }
@@ -45,7 +45,7 @@ public class Cell extends AbstractCell {
             // applying background color
             ctx.beginPath();
             ctx.setFillStyle(background);
-            ctx.fillRect(getXStart(), getYStart(), SQUARE_WIDTH - SEP_WIDTH, SQUARE_HEIGHT - SEP_WIDTH);
+            ctx.fillRect(getXStart(), getYStart(), getSquareWidth() - getSepWidth(), getSquareHeight() - getSepWidth());
             ctx.closePath();
             ctx.fill();
         }
@@ -56,7 +56,7 @@ public class Cell extends AbstractCell {
             ctx.setTextAlign(Context2d.TextAlign.CENTER);
             ctx.setTextBaseline(Context2d.TextBaseline.MIDDLE);
             ctx.setFillStyle("black");
-            ctx.fillText(Integer.toString(num), getXStart() + (SQUARE_WIDTH / 2), getYStart() + (SQUARE_HEIGHT / 2));
+            ctx.fillText(Integer.toString(num), getXStart() + (getSquareWidth() / 2), getYStart() + (getSquareHeight() / 2));
             ctx.closePath();
             ctx.fill();
         }
@@ -65,7 +65,7 @@ public class Cell extends AbstractCell {
             // drawing a square on the middle
             ctx.beginPath();
             ctx.setFillStyle("#663300");
-            ctx.fillRect(getXStart() + (SQUARE_WIDTH / 2) - 5, getYStart() + (SQUARE_HEIGHT / 2) - 5, 10, 10);
+            ctx.fillRect(getXStart() + (getSquareWidth() / 2) - 5, getYStart() + (getSquareHeight() / 2) - 5, 10, 10);
             ctx.closePath();
             ctx.fill();
         }
@@ -79,11 +79,11 @@ public class Cell extends AbstractCell {
             int lines = 5;
             for (int i = 1; i < lines; i++) {
 
-                ctx.moveTo(getXStart() + ((SQUARE_WIDTH / lines) * i), getYStart() + 1);
-                ctx.lineTo(getXEnd() - 1, getYEnd() - ((SQUARE_HEIGHT / lines) * i));
+                ctx.moveTo(getXStart() + ((getSquareWidth() / lines) * i), getYStart() + 1);
+                ctx.lineTo(getXEnd() - 1, getYEnd() - ((getSquareHeight() / lines) * i));
 
-                ctx.moveTo(getXStart() + 1, getYStart() + ((SQUARE_HEIGHT / lines) * i));
-                ctx.lineTo(getXEnd() - ((SQUARE_WIDTH / lines) * i), getYEnd() - 1);
+                ctx.moveTo(getXStart() + 1, getYStart() + ((getSquareHeight() / lines) * i));
+                ctx.lineTo(getXEnd() - ((getSquareWidth() / lines) * i), getYEnd() - 1);
 
             }
 
